@@ -173,27 +173,25 @@ Allows users to enter transaction details and receive an on-demand prediction fr
 
 Provides interactive visualizations of historical transaction patterns, suspicious transaction distributions, and other analytical insights.
 
+## API Documentation
+
 ## Dashboard Screenshots
 
-Add your actual dashboard screenshots in the `screenshots` folder using the following filenames.
+### 1. Dashboard Overview
 
-### Dashboard Overview
+![Dashboard Overview](screenshots/UPI_Project_Screenshots/dashboard_overview.png)
 
-![Dashboard Overview](screenshots/dashboard_overview.png)
+### 2. Transaction Monitoring
 
-### Transaction Monitoring
+![Transaction Monitoring](screenshots/UPI_Project_Screenshots/transaction_monitoring.png)
 
-![Transaction Monitoring](screenshots/transaction_monitoring.png)
+### 3. Test a Transaction
 
-### Test a Transaction
+![Test a Transaction](screenshots/UPI_Project_Screenshots/test_transaction.png)
 
-![Test a Transaction](screenshots/test_transaction.png)
+### 4. Fraud Analytics
 
-### Fraud Analytics
-
-![Fraud Analytics](screenshots/fraud_analytics.png)
-
-## API Documentation
+![Fraud Analytics](screenshots/UPI_Project_Screenshots/fraud_analytics.png)
 
 The backend is developed using FastAPI.
 
