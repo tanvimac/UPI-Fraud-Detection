@@ -1,306 +1,378 @@
-# UPI Fraud Detection & Real‑Time Transaction Monitoring System
+
+# UPI Fraud Detection & Transaction Monitoring System
+
+An end-to-end UPI fraud detection prototype built using Python, Scikit-learn, FastAPI, Streamlit, and Plotly. The system analyzes 10,000 synthetic UPI transactions, identifies suspicious transaction patterns using an Isolation Forest machine learning model, provides on-demand transaction predictions through a REST API, and visualizes transaction insights through an interactive four-page dashboard.
 
 ## Project Overview
-A compact, open‑source demonstration of a fintech fraud detection pipeline built with **Streamlit**, **FastAPI**, and **scikit‑learn**. The application loads a synthetic UPI transaction dataset, visualises key metrics, and provides a real‑time prediction API powered by an Isolation Forest model.
 
----
+Digital payment platforms process large numbers of transactions every day, making the identification of suspicious activities an important challenge.
 
-## Problem Statement & Objectives
-- **Problem**: Detect potentially fraudulent UPI transactions in near‑real‑time.
-- **Objectives**:
-  1. Generate a synthetic transaction dataset (no real user data).
-  2. Engineer simple temporal and statistical features.
-  3. Train an Isolation Forest model (Version 2) on the engineered features.
-  4. Expose a lightweight FastAPI service for on‑demand predictions.
-  5. Visualise data, model insights, and live predictions via a Streamlit UI.
+This project demonstrates how machine learning can be used to detect anomalous UPI transaction patterns. It combines an unsupervised machine learning model, a FastAPI prediction service, and an interactive Streamlit dashboard to support transaction analysis and monitoring.
 
----
+The project uses a synthetic dataset and is developed for educational and demonstration purposes.
 
 ## Key Features
-- **Dashboard Overview** – KPI cards, fraud‑vs‑normal distribution donut, recent transactions table.
-- **Transaction Monitoring** – Interactive filters, pagination, and a **Clear filters** button.
-- **Test a Transaction** – Form to submit a single transaction and receive a prediction.
-- **Fraud Analytics** – Multiple static charts (amount distribution, fraud by merchant, device, hour, etc.).
-- **Backend API** – `/health` health‑check and `/predict` endpoint returning a human‑readable label.
-- **Automated Test Suite** – 9 passing pytest cases covering API health, prediction schema, validation errors, and model loading.
 
----
+- **Fraud Detection:** Uses the Isolation Forest algorithm to identify anomalous transaction patterns.
+- **Feature Engineering:** Extracts useful transaction features, including transaction hour, day, weekend indicator, night indicator, and logarithmic transaction amount.
+- **Interactive Dashboard:** Provides a four-page Streamlit application for transaction monitoring and analysis.
+- **Transaction Monitoring:** Supports transaction searching, filtering, and pagination.
+- **On-Demand Prediction:** Provides transaction predictions through a FastAPI REST API.
+- **Fraud Analytics:** Displays historical transaction insights using interactive Plotly charts.
+- **Model Evaluation:** Evaluates performance using accuracy, precision, recall, F1-score, ROC-AUC, and a confusion matrix.
+- **API Testing:** Includes automated tests for API endpoints and prediction functionality.
 
 ## Technology Stack
-| Layer | Technology |
-|-------|------------|
-| UI | **Streamlit** (v0.x) – interactive web app, Plotly for charts |
-| API | **FastAPI** – lightweight HTTP service |
-| ML | **scikit‑learn** – Isolation Forest |
-| Data processing | **pandas**, **NumPy** |
-| Environment | Python 3.13, virtual environment (`.venv`) |
-| Testing | **pytest** |
-| Visualization (static) | Plotly, Matplotlib/Seaborn (used in EDA notebooks) |
 
----
+| Category             | Technologies         |
+| -------------------- | -------------------- |
+| Programming Language | Python               |
+| Data Processing      | Pandas, NumPy        |
+| Machine Learning     | Scikit-learn         |
+| Algorithm            | Isolation Forest     |
+| Backend              | FastAPI              |
+| Frontend             | Streamlit            |
+| Data Visualization   | Plotly               |
+| Model Persistence    | Joblib               |
+| Testing              | Pytest               |
+| Development Tools    | VS Code, Git, GitHub |
 
-## System Architecture & Data Flow
-```
-Synthetic Data (data/raw/upi_transactions_v2.csv)
-        |
-        v
-Feature Engineering (src/feature_engineering.py)
-        |
-        v
-Processed Data (data/processed/upi_transactions_features_v2.csv)
-        |
-        |---► Frontend (frontend/app.py)
-        |        • Loads processed CSV (cached)
-        |        • Shows charts, tables, filters
-        |        • Sends transaction JSON to FastAPI /predict
-        |
-        v
-Isolation Forest Model (models/isolation_forest_v2.pkl)
-        |
-        v
-Backend (backend/main.py)
-        • Loads model at startup
-        • /predict builds same feature set, runs model, returns label
-        • /health returns status
-```
-The **frontend** never touches the raw data; it only reads the processed CSV. When a user tests a transaction, the frontend posts a JSON payload to the **backend**, which replicates the feature engineering steps, runs the Isolation Forest, and returns a prediction.
+## Dataset
 
----
+The project uses a synthetic UPI transaction dataset containing 10,000 records.
 
-## Repository Structure
-```
-UPI-Fraud-Detection/
-├─ backend/                 # FastAPI application
-│   ├─ main.py              # API routes & model loading
-├─ data/                    # Dataset files
-│   ├─ raw/                 # Synthetic raw CSVs
-│   │   └─ upi_transactions_v2.csv
-│   └─ processed/           # Feature‑engineered CSVs
-│       ├─ upi_transactions_features_v2.csv
-├─ frontend/                # Streamlit UI
-│   ├─ app.py               # Main Streamlit script (single‑page app)
-├─ models/                  # Serialized ML models
-│   ├─ isolation_forest.pkl
-│   └─ isolation_forest_v2.pkl
-├─ reports/                 # Evaluation & EDA artefacts
-│   ├─ model_evaluation_v2.txt
-│   ├─ model_evaluation.txt
-│   └─ eda/ (charts)
-├─ src/                     # Core scripts
-│   ├─ data_generator.py
-│   ├─ data_generator_v2.py
-│   ├─ feature_engineering.py
-│   ├─ model_training_v2.py
-│   └─ eda.py
-├─ tests/                   # pytest suite
-│   └─ test_api.py
-├─ requirements.txt
-└─ README.md                # (this file)
-```
+| Dataset Attribute             |  Value |
+| ----------------------------- | -----: |
+| Total Transactions            | 10,000 |
+| Normal Transactions           |  9,800 |
+| Simulated Fraud Transactions  |    200 |
+| Normal Transaction Percentage |    98% |
+| Simulated Fraud Percentage    |     2% |
 
----
+The dataset contains transaction-related information such as:
 
-## Dataset Description
-The synthetic dataset mimics typical UPI transaction logs.
+- Transaction amount
+- Transaction timestamp
+- Transaction type
+- Merchant category
+- Device type
+- Location
+- Number of transactions in the last hour
+- Fraud label
 
-### Raw columns (`data/raw/upi_transactions_v2.csv`)
-| Column | Description |
-|--------|-------------|
-| `transaction_id` | Unique identifier (string) |
-| `user_id` | Synthetic user identifier |
-| `amount` | Transaction amount (INR) |
-| `transaction_time` | ISO‑8601 timestamp |
-| `transaction_type` | `debit` or `credit` |
-| `merchant_category` | Category string (e.g., Food, Travel) |
-| `device_type` | Device used (mobile, web, POS, ATM) |
-| `location` | City name |
-| `transactions_last_1hr` | Number of prior transactions by the user in the last hour |
-| `is_fraud` | Ground‑truth label (0 = normal, 1 = fraud) |
+**Note:** The dataset is synthetic and does not contain real customer or banking transaction records.
 
-### Processed columns (`data/processed/upi_transactions_features_v2.csv`)
-All raw columns are retained **plus** the engineered features used for modelling:
-- `transaction_hour` (0‑23)
-- `transaction_day` (0‑6, Monday=0)
-- `is_weekend` (1 if Saturday/Sunday, else 0)
-- `is_night` (1 if hour 0‑4, else 0)
-- `log_amount` (natural log of `amount`)
+## Machine Learning Approach
 
-> **Synthetic data disclaimer** – The data is artificially generated and does not contain any real user information.
+### Algorithm: Isolation Forest
 
----
+Isolation Forest is an unsupervised machine learning algorithm used for anomaly detection.
 
-## Exploratory Data Analysis & Feature Engineering
-- Basic distribution plots (amount, fraud by merchant/device/hour) are stored in `reports/eda/` as PNG images.
-- Feature engineering is performed in `src/feature_engineering.py` and reproduced in the backend (`backend/main.py`):
-  1. Parse `transaction_time` → hour, weekday.
-  2. Derive `is_weekend` and `is_night` flags.
-  3. Compute `log_amount` to reduce skew.
-- The engineered feature set is **exactly** the list used during model training:
-  ```
-  amount, transactions_last_1hr, transaction_hour, transaction_day,
-  is_weekend, is_night, log_amount
-  ```
+It identifies unusual observations by isolating data points through randomly generated decision trees. Anomalous observations are generally easier to isolate than normal observations.
 
----
+The model is trained using transaction-related numerical features.
 
-## Isolation Forest (Version 2) Training Methodology
-Implemented in `src/model_training_v2.py`:
-1. Load `data/processed/upi_transactions_features_v2.csv`.
-2. Verify dataset integrity (10 000 rows, 2 % fraud, no missing values, unique transaction IDs).
-3. Split with stratified 80/20 split (`random_state=42`).
-4. Train `IsolationForest` with:
-   - `n_estimators=100`
-   - `contamination=0.02`
-   - `random_state=42`
-5. Map model output `-1 → fraud (1)` and `1 → normal (0)`.
-6. Evaluate on the held‑out test set and write a human‑readable report.
-7. Serialize the model to `models/isolation_forest_v2.pkl` using `joblib.dump`.
+### Feature Engineering
 
----
+The following features are generated:
 
-## Model Evaluation (Version 2)
-Extracted from `reports/model_evaluation_v2.txt`:
-```
-Isolation Forest Model Evaluation – Version 2
-=============================================
+| Feature               | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| amount                | Transaction amount                                                 |
+| transactions_last_1hr | Number of recent transactions                                      |
+| transaction_hour      | Hour of the transaction                                            |
+| transaction_day       | Day of the month                                                   |
+| is_weekend            | Indicates whether the transaction occurred on a weekend            |
+| is_night              | Indicates whether the transaction occurred between 00:00 and 04:59 |
+| log_amount            | Logarithmic transformation of transaction amount                   |
 
-Dataset rows: 10000 (fraud 200 / 9800)
-Features used: amount, transactions_last_1hr, transaction_hour, transaction_day, is_weekend, is_night, log_amount
+The `is_fraud` column is used for dataset splitting and evaluation, not as a model input.
 
-Confusion Matrix (true vs pred):
-[[1940   20]
- [  16   24]]
+### Model Configuration
 
-Accuracy : 0.9820
-Precision: 0.5455
-Recall   : 0.6000
-F1-score : 0.5714
-ROC‑AUC  : 0.9866
-```
-### Interpretation
-- **True Negatives (1940)** – Normal transactions correctly identified.
-- **False Positives (20)** – Normal transactions flagged as fraud.
-- **False Negatives (16)** – Fraudulent transactions missed (predicted as normal).
-- **True Positives (24)** – Fraudulent transactions correctly identified.
-- **Precision (0.5455)** indicates that when the model flags fraud, ~55 % are true frauds.
-- **Recall (0.6000)** shows the model catches 60 % of all fraud cases.
-- **ROC‑AUC (0.9866)** reflects strong separability between normal and fraudulent patterns, despite the modest precision/recall that stem from the highly imbalanced data.
+- Algorithm: Isolation Forest
+- Number of Estimators: 100
+- Contamination: 0.02
+- Random State: 42
+- Train-Test Split: 80:20
+- Training Approach: Unsupervised learning
 
----
+The dataset is split using stratification to preserve the normal and simulated fraud class proportions.
 
-## FastAPI Endpoints
-### 1️⃣ Health Check
-```http
-GET /health HTTP/1.1
-Host: 127.0.0.1:8000
-```
-**Response** (`200 OK`):
+## Model Evaluation
+
+The model was evaluated on a held-out synthetic test dataset containing 2,000 transactions.
+
+### Performance Metrics
+
+| Metric    | Result |
+| --------- | -----: |
+| Accuracy  | 98.20% |
+| Precision | 54.55% |
+| Recall    | 60.00% |
+| F1-Score  | 57.14% |
+| ROC-AUC   | 0.9866 |
+
+### Confusion Matrix
+
+| Actual / Predicted | Normal | Suspicious |
+| ------------------ | -----: | ---------: |
+| Normal             |   1940 |         20 |
+| Simulated Fraud    |     16 |         24 |
+
+### Performance Interpretation
+
+- The model correctly identified 24 out of 40 simulated fraud transactions in the test dataset.
+- It flagged 44 transactions as suspicious, of which 24 were simulated fraud cases.
+- It missed 16 simulated fraud transactions.
+- The high accuracy should be interpreted carefully because the dataset is imbalanced.
+
+These results represent performance on a synthetic dataset and should not be interpreted as real-world banking fraud detection performance.
+
+## System Architecture
+
+The application follows a simple architecture with three main components:
+
+1. **Data Processing and Machine Learning**
+
+   - Loads the synthetic transaction dataset.
+   - Performs feature engineering.
+   - Trains and evaluates the Isolation Forest model.
+   - Saves the trained model using Joblib.
+2. **Backend API**
+
+   - Built using FastAPI.
+   - Loads the trained machine learning model.
+   - Accepts transaction details through the prediction endpoint.
+   - Returns a Normal or Suspicious prediction.
+3. **Frontend Dashboard**
+
+   - Built using Streamlit.
+   - Displays historical transaction information.
+   - Provides transaction filtering and monitoring.
+   - Visualizes fraud analytics.
+   - Allows users to test individual transactions through the API.
+
+## Dashboard Pages
+
+The Streamlit application contains four main pages.
+
+### 1. Dashboard Overview
+
+Provides a high-level summary of transaction activity through KPI cards, charts, and a recent transaction stream.
+
+### 2. Transaction Monitoring
+
+Allows users to search, filter, and inspect historical transactions using transaction details and pagination.
+
+### 3. Test a Transaction
+
+Allows users to enter transaction details and receive an on-demand prediction from the FastAPI backend.
+
+### 4. Fraud Analytics
+
+Provides interactive visualizations of historical transaction patterns, suspicious transaction distributions, and other analytical insights.
+
+## Dashboard Screenshots
+
+Add your actual dashboard screenshots in the `screenshots` folder using the following filenames.
+
+### Dashboard Overview
+
+![Dashboard Overview](screenshots/dashboard_overview.png)
+
+### Transaction Monitoring
+
+![Transaction Monitoring](screenshots/transaction_monitoring.png)
+
+### Test a Transaction
+
+![Test a Transaction](screenshots/test_transaction.png)
+
+### Fraud Analytics
+
+![Fraud Analytics](screenshots/fraud_analytics.png)
+
+## API Documentation
+
+The backend is developed using FastAPI.
+
+### Available Endpoints
+
+| Method | Endpoint     | Description                                            |
+| ------ | ------------ | ------------------------------------------------------ |
+| GET    | `/health`  | Checks backend health                                  |
+| POST   | `/predict` | Predicts whether a transaction is normal or suspicious |
+
+### Example Prediction Request
+
 ```json
-{ "status": "ok", "message": "FastAPI backend is running" }
-```
-
-### 2️⃣ Prediction
-```http
-POST /predict HTTP/1.1
-Host: 127.0.0.1:8000
-Content-Type: application/json
-
 {
-  "amount": 123.45,
-  "transaction_time": "2023-01-01T12:34:56",
+  "amount": 25000,
+  "transaction_time": "2026-11-24T02:30:00",
   "transaction_type": "debit",
-  "merchant_category": "Food",
+  "merchant_category": "shopping",
   "device_type": "mobile",
-  "location": "NY",
-  "transactions_last_1hr": 2
+  "location": "Mumbai",
+  "transactions_last_1hr": 15
 }
 ```
-**Response** (`200 OK`):
+
+### Example Prediction Response
+
 ```json
 {
-  "prediction": "Normal",      // or "Suspicious"
-  "is_suspicious": false,       // true when prediction is "Suspicious"
-  "message": "Transaction looks normal"
+  "prediction": "Suspicious"
 }
 ```
-The endpoint returns a **400** error with a descriptive message if validation fails (e.g., negative amount, malformed timestamp).
 
----
+The prediction is illustrative. Actual results depend on the supplied transaction data and trained model.
 
-## Installation (macOS)
+Interactive API documentation is available through FastAPI Swagger UI at:
+
+`http://127.0.0.1:8000/docs`
+
+## Project Structure
+
+```text
+UPI-Fraud-Detection/
+│
+├── backend/
+│   └── main.py
+│
+├── data/
+│   ├── raw/
+│   │   └── upi_transactions_v2.csv
+│   │
+│   └── processed/
+│       └── upi_transactions_features_v2.csv
+│
+├── frontend/
+│   └── app.py
+│
+├── models/
+│   └── isolation_forest_v2.pkl
+│
+├── src/
+│   ├── feature_engineering.py
+│   └── model_training_v2.py
+│
+├── tests/
+│   └── test_api.py
+│
+├── screenshots/
+│   ├── dashboard_overview.png
+│   ├── transaction_monitoring.png
+│   ├── test_transaction.png
+│   └── fraud_analytics.png
+│
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
+
+*The structure above highlights the main project files. Other supporting files may also exist in the repository.*
+
+## Installation and Setup
+
+### 1. Clone the Repository
+
 ```bash
-# 1. Clone the repository (if not already)
-git clone <repo‑url>
+git clone https://github.com/tanvimac/UPI-Fraud-Detection.git
 cd UPI-Fraud-Detection
+```
 
-# 2. Create a virtual environment
+### 2. Create a Virtual Environment
+
+```bash
 python3 -m venv .venv
-source .venv/bin/activate
+```
 
-# 3. Install dependencies
+### 3. Activate the Virtual Environment
+
+For macOS and Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+### 4. Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
-All required packages are listed in `requirements.txt` (Streamlit, FastAPI, scikit‑learn, pandas, numpy, httpx, pytest, etc.).
 
----
+### 5. Start the FastAPI Backend
 
-## Running the Application
-### Backend (FastAPI)
+Open the first terminal:
+
 ```bash
-# From the project root, with the virtual environment active
-.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
-```
-The server prints a startup message and is ready at `http://127.0.0.1:8000`.
-
-### Frontend (Streamlit UI)
-```bash
-.venv/bin/streamlit run frontend/app.py --server.port 8502
-```
-Open a browser at `http://localhost:8502` to view the dashboard, monitoring page, and transaction tester.
-
----
-
-## Running Automated Tests
-```bash
-# Ensure the virtual environment is active
+cd /Users/mac/Desktop/UPI-Fraud-Detection
 source .venv/bin/activate
-
-# Execute the pytest suite
-.venv/bin/python -m pytest -q
+.venv/bin/uvicorn backend.main:app --reload
 ```
-All **9 tests pass**:
+
+Backend address:
+
+`http://127.0.0.1:8000`
+
+### 6. Start the Streamlit Dashboard
+
+Open a second terminal:
+
+```bash
+cd /Users/mac/Desktop/UPI-Fraud-Detection
+source .venv/bin/activate
+HOME="$PWD/.streamlit_home" .venv/bin/streamlit run frontend/app.py --server.address 127.0.0.1 --server.port 8501
 ```
-.........                                                                [100%]
-9 passed, 2 warnings in 2.5s
+
+Dashboard address:
+
+`http://localhost:8501`
+
+Keep both terminals running while using the application.
+
+## Running Tests
+
+Run the automated tests from the project root:
+
+```bash
+source .venv/bin/activate
+.venv/bin/pytest -v
 ```
-The tests validate health‑check, prediction schema, input validation, and that the backend loads the V2 model file.
 
----
+The project currently has 9 passing API tests.
 
-## Screenshots
-*Replace the placeholders with actual PNG files generated from the running application.*
+## Limitations
 
-| Page | Screenshot |
-|------|------------|
-| Dashboard Overview | `![Dashboard](path/to/dashboard.png)` |
-| Transaction Monitoring | `![Monitoring](path/to/monitoring.png)` |
-| Test a Transaction | `![Test Transaction](path/to/test_transaction.png)` |
-| Fraud Analytics | `![Analytics](path/to/analytics.png)` |
+- The project uses synthetic transaction data rather than real banking data.
+- The model is a demonstration of unsupervised anomaly detection, not a production-grade fraud detection system.
+- The API provides on-demand predictions and does not connect to live UPI payment systems.
+- The dashboard displays historical data from the processed CSV dataset.
+- New API predictions are not automatically added to the historical dashboard dataset.
+- The model does not block, reverse, or authorize actual financial transactions.
+- The model's performance on synthetic data does not guarantee performance on real-world transactions.
 
----
+## Future Improvements
 
-## Limitations & Future Improvements
-- **Synthetic data** – Real‑world performance cannot be inferred.
-- **Model** – Isolation Forest provides coarse anomaly detection; supervised models could improve precision/recall.
-- **Feature set** – Limited to simple temporal and amount‑based features; richer behavioural signals would be beneficial.
-- **Scalability** – The current FastAPI service loads the model in memory and handles a single worker; production deployment would need proper concurrency, monitoring, and security.
-- **UI** – The Streamlit UI is functional but could benefit from pagination optimisation and richer visualisation components.
-
----
+- Integrate a real-time transaction data pipeline using an appropriate authorized data source.
+- Explore additional machine learning and deep learning algorithms.
+- Improve fraud detection recall while controlling false positives.
+- Add database integration for storing and retrieving transaction records.
+- Add authentication and role-based access control.
+- Develop alerts and notifications for suspicious transactions.
+- Add monitoring for model drift and performance degradation.
 
 ## Disclaimer
-The dataset and model are **synthetic demonstrations** designed for educational purposes only. They are **not** intended for use in any real banking or financial‑service production environment.
 
----
+This project is developed strictly for educational and demonstration purposes. It uses synthetic transaction data and is not connected to any real UPI, bank, or payment gateway system. Predictions should not be used for actual financial decisions.
 
-*Repository generated on 2026‑11‑24 using Antigravity.*
+## Author
+
+**Tanvi Sharma**
+
+B.Tech – Computer Science and Engineering
+
+GitHub: https://github.com/tanvimac
+
+LinkedIn: https://www.linkedin.com/in/tanvishrma/
