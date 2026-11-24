@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+*.log
+*.sqlite3
+.pytest_cache/
+.streamlit_home/
+*~
+# Exclude old V1 backup datasets (keep locally but not version‑controlled)
+data/raw/upi_transactions_v1_backup.csv
+data/processed/upi_transactions_features_v1_backup.csv
+# Exclude old backup/placeholder source files that are not used by the V2 application
+backend/main_before_v2.py
+frontend/app_before_dashboard_redesign.py
+frontend/app_before_v2.py
+frontend/app_v2_integration_backup.py
+data/raw/upi_transactions.csv

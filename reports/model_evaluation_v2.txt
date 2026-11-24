@@ -1,0 +1,30 @@
+Isolation Forest Model Evaluation – Version 2
+=============================================
+
+Dataset rows: 10000 (fraud 200 / 9800)
+Features used: amount, transactions_last_1hr, transaction_hour, transaction_day, is_weekend, is_night, log_amount
+
+Confusion Matrix (true vs pred):
+[[1940   20]
+ [  16   24]]
+
+Accuracy : 0.9820
+Precision: 0.5455
+Recall   : 0.6000
+F1-score : 0.5714
+ROC‑AUC  : 0.9866
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99      1960
+           1       0.55      0.60      0.57        40
+
+    accuracy                           0.98      2000
+   macro avg       0.77      0.79      0.78      2000
+weighted avg       0.98      0.98      0.98      2000
+
+False Positives (normal predicted as fraud): 20
+False Negatives (fraud predicted as normal): 16
+
+Note: Fraud scenario labels were not stored in the dataset; per‑scenario analysis is not available.

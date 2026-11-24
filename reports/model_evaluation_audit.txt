@@ -1,0 +1,31 @@
+Model Evaluation Audit Report
+========================================
+
+Dataset: upi_transactions_features.csv
+Feature columns used: amount, transactions_last_1hr, transaction_hour, transaction_day, is_weekend, is_night, log_amount
+Train-test split: 80% train, 20% test, random_state=42, stratified by label
+
+Confusion Matrix (rows=true, cols=predicted):
+[[1960    0]
+ [   0   40]]
+
+Accuracy : 1.0000
+Precision: 1.0000
+Recall   : 1.0000
+F1-score : 1.0000
+ROC-AUC  : 1.0000
+
+Interpretation of Isolation Forest predictions:
+- model.predict returns 1 for normal, -1 for anomaly.
+- We map -1 to label 1 (Suspicious) and 1 to label 0 (Normal).
+
+Potential issues / consistency checks:
+- Ensure the same random seed and stratification are used for reproducibility.
+- The previous evaluation report may differ if a different seed or data split was used, or if the model file was overwritten after retraining.
+- No label leakage detected: is_fraud is excluded from features.
+- Feature engineering uses only current transaction information; no future data leakage observed.
+
+Reliability assessment:
+- The dataset is synthetic, so metrics may not reflect real-world performance.
+- Isolation Forest is unsupervised; its anomaly score may not perfectly align with fraud labels.
+- Nevertheless, the evaluation provides a baseline for demonstration purposes.

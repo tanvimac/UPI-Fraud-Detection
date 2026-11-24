@@ -1,0 +1,39 @@
+Dataset Version 2 Comparison Report
+========================================
+
+1. Record counts and fraud ratio
+   V1 rows: 10000, fraud rows: 200 (2.00%)
+   V2 rows: 10000, fraud rows: 200 (2.00%)
+
+2. Amount distribution (INR) – mean ± std, min‑max
+   amount: V1 2768.10±18282.91 [10-199979], V2 1880.26±11888.87 [10-198539]
+   transactions_last_1hr: V1 1.24±2.02 [0-20], V2 1.11±1.50 [0-20]
+
+3. Transactions in last hour – mean ± std
+   V1 1.24±2.02, V2 1.11±1.50
+
+4. Transaction hour statistics
+   V1 mean 11.33, std 6.99
+   V2 mean 11.13, std 7.03
+
+5. Night‑time flag proportion (1 if hour 0‑4)
+   V1 night proportion: 21.92%
+   V2 night proportion: 23.81%
+
+6. Device type distribution (% of rows)
+   V1: ATM:25.91%, POS:25.38%, Web:24.48%, Mobile:24.23%
+   V2: ATM:25.67%, POS:25.08%, Web:24.75%, Mobile:24.5%
+
+7. Merchant category distribution (% of rows)
+   V1: Gifts:11.67%, Other:11.67%, Travel:11.17%, Food:11.1%, Education:11.06%, Bills:10.93%, Shopping:10.85%, Health:10.83%, Entertainment:10.72%
+   V2: Gifts:11.44%, Food:11.27%, Travel:11.26%, Other:11.2%, Education:11.15%, Bills:10.99%, Shopping:10.98%, Health:10.92%, Entertainment:10.79%
+
+8. Missing values / duplicates
+   No missing values and transaction_id is unique in both versions.
+
+9. Observations
+   * Amount overlap increased: V2 fraud amounts now range 5 000‑30 000 INR, overlapping normal tail.
+   * Frequency overlap: V2 fraud recent counts include low values (0‑5), similar to normal.
+   * Night pattern less deterministic: V2 night proportion lower, many normal rows also at night.
+   * Device/merchant diversity: Rare devices/merchants appear in both fraud and some noisy normal rows.
+   * Overall V2 presents a harder classification problem with overlapping feature spaces.

@@ -1,0 +1,48 @@
+Synthetic Data Quality Audit
+===================================
+
+1. Fraud label generation logic (from src/data_generator.py):
+- Total rows: 10,000, fraud ratio 2% (200 fraud rows).
+- Fraud rows receive:
+  * Amount: uniform 50,000–200,000 INR (vs normal log‑normal <10,000).
+  * transactions_last_1hr: 5–20 (vs Poisson λ=1 for normal).
+  * Transaction time: late night (0‑4 am).
+  * Device type: chosen from less common ["POS", "ATM"].
+  * Merchant category: chosen from rare ["Gifts", "Other"].
+  * Other fields (user_id, location, etc.) remain random.
+
+2. Features used by Isolation Forest (src/model_training.py):
+   amount, transactions_last_1hr, transaction_hour, transaction_day, is_weekend, is_night, log_amount
+
+3. Feature distributions (mean ± std) for fraud vs normal:
+   amount: fraud 123567.50±42631.94, normal 302.81±512.44
+   transactions_last_1hr: fraud 12.54±4.84, normal 1.01±1.01
+   transaction_hour: fraud 1.48±1.12, normal 11.53±6.91
+   transaction_day: fraud 3.21±2.18, normal 2.89±2.05
+   is_weekend: fraud 0.37±0.48, normal 0.28±0.45
+   is_night: fraud 1.00±0.00, normal 0.20±0.40
+   log_amount: fraud 11.66±0.38, normal 5.01±1.18
+
+   Notable separations:
+   * amount: fraud mean ≈ 123567.50, normal mean ≈ 302.81
+   * transactions_last_1hr: fraud mean ≈ 12.54, normal mean ≈ 1.01
+   * is_night: fraud mean ≈ 1.00, normal mean ≈ 0.20
+
+4. New Isolation Forest trained on training split results:
+   Confusion Matrix (true rows vs predicted):
+   [[1960    0]
+ [   0   40]]
+   Accuracy : 1.0000
+   Precision: 1.0000
+   Recall   : 1.0000
+   F1-score : 1.0000
+   ROC-AUC  : 1.0000
+
+5. Comparison to previously reported perfect metrics:
+   The newly trained model also achieves zero false positives and false negatives on the held‑out test set, reproducing the perfect scores.
+
+6. Assessment:
+   - Fraud labels are created by deterministic rules that strongly separate fraud from normal on the engineered numeric features (amount, recent count, night flag, etc.).
+   - Those same distinguishing variables are directly used as model inputs, making the classification task trivially easy for an anomaly detector.
+   - Consequently, Isolation Forest can perfectly separate the two classes, leading to 100% metrics.
+   - For a more realistic evaluation, consider adding overlap (e.g., lower fraud amounts, mixed device types) or removing the leakage‑prone features.
